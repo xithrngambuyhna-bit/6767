@@ -1,0 +1,189 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+
+-- 1. ค้นหา Parent สำหรับ Executor ทุกค่าย
+local parentContainer
+if gethui then
+    parentContainer = gethui()
+elseif game:GetService("CoreGui"):FindFirstChild("RobloxGui") then
+    parentContainer = game:GetService("CoreGui")
+else
+    parentContainer = player:WaitForChild("PlayerGui")
+end
+
+-- ลบ UI เก่าป้องกันเปิดซ้ำ
+if parentContainer:FindFirstChild("SingtoMenuGui") then
+    parentContainer.SingtoMenuGui:Destroy()
+end
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "SingtoMenuGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = parentContainer
+
+-- 2. สร้างเมนูหลัก
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 340, 0, 440)
+mainFrame.Position = UDim2.new(0.5, -170, 0.5, -220)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 15)
+mainCorner.Parent = mainFrame
+
+-- หัวข้อหลัก
+local titleTop = Instance.new("TextLabel")
+titleTop.Text = "SINGTO SPORT & GARAGE"
+titleTop.Size = UDim2.new(1, -70, 0, 35)
+titleTop.Position = UDim2.new(0, 15, 0, 5)
+titleTop.TextColor3 = Color3.fromRGB(50, 220, 50)
+titleTop.BackgroundTransparency = 1
+titleTop.Font = Enum.Font.SourceSansBold
+titleTop.TextSize = 16
+titleTop.TextXAlignment = Enum.TextXAlignment.Left
+titleTop.Parent = mainFrame
+
+-- ปุ่มย่อ (-) และ ปิด (X)
+local minBtn = Instance.new("TextButton")
+minBtn.Text = "-"
+minBtn.Size = UDim2.new(0, 30, 0, 30)
+minBtn.Position = UDim2.new(1, -65, 0, 5)
+minBtn.BackgroundTransparency = 1
+minBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+minBtn.Font = Enum.Font.SourceSansBold
+minBtn.TextSize = 24
+minBtn.Parent = mainFrame
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Text = "X"
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.BackgroundTransparency = 1
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.Font = Enum.Font.SourceSansBold
+closeBtn.TextSize = 20
+closeBtn.Parent = mainFrame
+
+-- โลโก้ทรงกลม (ไม่ใช้รูปภาพ ป้องกันโหลดไม่ติด)
+local logoCircle = Instance.new("Frame")
+logoCircle.Size = UDim2.new(0, 65, 0, 65)
+logoCircle.Position = UDim2.new(0.5, -32, 0, 40)
+logoCircle.BackgroundColor3 = Color3.fromRGB(50, 220, 50)
+logoCircle.Parent = mainFrame
+
+local logoCorner = Instance.new("UICorner")
+logoCorner.CornerRadius = UDim.new(1, 0)
+logoCorner.Parent = logoCircle
+
+local logoText = Instance.new("TextLabel")
+logoText.Text = "SINGTO"
+logoText.Size = UDim2.new(1, 0, 1, 0)
+logoText.TextColor3 = Color3.fromRGB(0, 0, 0)
+logoText.Font = Enum.Font.SourceSansBold
+logoText.TextSize = 14
+logoText.BackgroundTransparency = 1
+logoText.Parent = logoCircle
+
+-- ปุ่มย่อวงกลม (แสดงเมื่อกดปุ่ม -)
+local miniCircle = Instance.new("TextButton")
+miniCircle.Name = "MiniCircleIcon"
+miniCircle.Size = UDim2.new(0, 60, 0, 60)
+miniCircle.Position = UDim2.new(0.05, 0, 0.4, 0)
+miniCircle.BackgroundColor3 = Color3.fromRGB(50, 220, 50)
+miniCircle.Text = "SINGTO"
+miniCircle.TextColor3 = Color3.fromRGB(0, 0, 0)
+miniCircle.Font = Enum.Font.SourceSansBold
+miniCircle.TextSize = 14
+miniCircle.Active = true
+miniCircle.Draggable = true
+miniCircle.Visible = false
+miniCircle.Parent = screenGui
+
+local miniCorner = Instance.new("UICorner")
+miniCorner.CornerRadius = UDim.new(1, 0)
+miniCorner.Parent = miniCircle
+
+minBtn.MouseButton1Click:Connect(function()
+	mainFrame.Visible = false
+	miniCircle.Visible = true
+end)
+
+miniCircle.MouseButton1Click:Connect(function()
+	mainFrame.Visible = true
+	miniCircle.Visible = false
+end)
+
+closeBtn.MouseButton1Click:Connect(function()
+	screenGui:Destroy()
+end)
+
+-- 3. ฟังก์ชันสร้างหน้าย่อย
+local function createSubPage(pageName, titleText)
+	local page = Instance.new("Frame")
+	page.Name = pageName
+	page.Size = mainFrame.Size
+	page.Position = mainFrame.Position
+	page.BackgroundColor3 = mainFrame.BackgroundColor3
+	page.BorderSizePixel = 0
+	page.Active = true
+	page.Draggable = true
+	page.Visible = false
+	page.Parent = screenGui
+	
+	local pCorner = Instance.new("UICorner")
+	pCorner.CornerRadius = UDim.new(0, 15)
+	pCorner.Parent = page
+
+	local pTitle = Instance.new("TextLabel")
+	pTitle.Text = titleText
+	pTitle.Size = UDim2.new(1, 0, 0, 40)
+	pTitle.Position = UDim2.new(0, 0, 0, 10)
+	pTitle.TextColor3 = Color3.fromRGB(50, 220, 50)
+	pTitle.BackgroundTransparency = 1
+	pTitle.Font = Enum.Font.SourceSansBold
+	pTitle.TextSize = 24
+	pTitle.Parent = page
+
+	local backBtn = Instance.new("TextButton")
+	backBtn.Text = "< ย้อนกลับ"
+	backBtn.Size = UDim2.new(0, 85, 0, 30)
+	backBtn.Position = UDim2.new(0, 10, 0, 10)
+	backBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	backBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	backBtn.Font = Enum.Font.SourceSansBold
+	backBtn.TextSize = 13
+	backBtn.Parent = page
+	
+	local bCorner = Instance.new("UICorner")
+	bCorner.CornerRadius = UDim.new(0, 8)
+	bCorner.Parent = backBtn
+
+	backBtn.MouseButton1Click:Connect(function()
+		page.Visible = false
+		mainFrame.Visible = true
+	end)
+
+	return page
+end
+
+local function createCapsuleButton(parent, text, posPos, callback)
+	local btn = Instance.new("TextButton")
+	btn.Text = text
+	btn.Size = UDim2.new(0.85, 0, 0, 45)
+	btn.Position = posPos
+	btn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+	btn.TextColor3 = Color3.fromRGB(0, 0, 150)
+	btn.Font = Enum.Font.SourceSansBold
+	btn.TextSize = 22
+	btn.Parent = parent
+
+	local bCorner = Instance.new("UICorner")
+	bCorner.CornerRadius = UDim.new(1, 0)
+	bCorner.Parent = btn
+  
